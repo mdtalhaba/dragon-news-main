@@ -1,15 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthProvider/AuthProvider';
 
 
 const Login = () => {
-
+    const [error, setError] = useState('');
 
     const { signIn } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/';
 
 
     const handleSubmit = event => {
@@ -19,11 +23,17 @@ const Login = () => {
         const password = form.password.value;
         signIn(email, password)
             .then(result => {
-                const user = result.user;
+                // const user = result.user;
+                // console.log(user);
                 form.reset();
-                navigate('/')
+                setError('')
+                navigate(from, { replace: true })
+                toast.success('Login Successfull.')
             })
-        .catch(error => console.error(error))
+            .catch(error => {
+                console.error(error)
+                setError(error.message);
+            })
     }
 
 
@@ -44,8 +54,9 @@ const Login = () => {
             <Button variant="primary" type="submit">
                 Login
             </Button>
+            <br />
             <Form.Text className="text-danger">
-                
+                {error}
             </Form.Text>
         </Form>
     );
